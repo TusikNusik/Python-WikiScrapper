@@ -4,8 +4,10 @@ from collections import Counter
 import os
 import pandas as pd
 import json
-from wiki_errors import BrokenContainerError
+from wiki_errors import InvalidArgumentError
 import time
+from wordfreq import word_frequency, top_n_list
+import matplotlib.pyplot as plt
 
 class WikiController():
     def __init__(self, wiki_url):
@@ -37,7 +39,7 @@ class WikiController():
         self.scrapper.scrape(phrase=phrase)
         phrase_content = self.scrapper.get_words()
         phrase_content = phrase_content.lower()
-        word_list = re.findall("\w+", phrase_content)
+        word_list = re.findall(r"\w+", phrase_content)
          
         current_counts = Counter(word_list)
         counts_path = "./word-counts.json"
@@ -51,8 +53,85 @@ class WikiController():
         all_counts.update(current_counts)
         with open(counts_path, 'w') as f:
             json.dump(dict(all_counts), f, ensure_ascii=False, indent=2)
+
+    
+    def analyze_relative_word_frequency(self, mode, count, chart=None):
+        language = "eng"
+
+        counts_path = "./word-counts.json"
+        if os.path.exists(counts_path):
+             with open(counts_path) as f:
+                data = json.load(f)
+                data = Counter(data)
+        else:
+            raise InvalidArgumentError("There is no words to sample from.")
+
+        if not isinstance(count, int) or count < 0:
+            raise InvalidArgumentError("Please provide correct count value.")
+
+        article_most_common = data.most_common(count)
+        language_most_common = top_n_list(language, count)
+
+        word_data = []
+        if mode == "article":
+            for word, count in article_most_common:
+                lang_freq = word_frequency(word, language)
+                word_data.append({
+                    'word': word,
+                    'wiki_count': count,
+                    'lang_freq': lang_freq
+                })
+        elif mode == "language":
+            for word in language_most_common:
+                lang_freq = word_frequency(word, language)
+                wiki_count = data.get(word, 0)
+
+                word_data.append({
+                    'word': word,
+                    'wiki_count': wiki_count,
+                    'lang_freq': lang_freq
+                })
+        else:
+            raise InvalidArgumentError("Invalid mode argument given.")
         
-    def auto_count_words(self, current_phrase, n, t):
+        word_table = pd.DataFrame(word_data)
+        max_wiki = word_table['wiki_count'].max()
+        max_language = word_table['lang_freq'].max()
+
+        word_table['lang_freq'] = word_table['lang_freq'] / max_language
+        word_table['wiki_freq'] = word_table['wiki_count'] / max_wiki
+        result_table = word_table[['word', 'wiki_freq', 'lang_freq']]
+
+        print(result_table)
+
+        if chart:
+            self.generate_chart(result_table, chart, language)
+    
+    def generate_chart(self, data, path, language):
+        plot_data = data.set_index('word')
+        
+        plot_data.plot(kind='bar', figsize=(10, 6), width=0.8)
+        
+        plt.title("Frequency of words: Wiki vs Language")
+        plt.ylabel("Normalized Frequency (0-1)")
+        plt.xlabel("Words")
+        plt.legend(["Wiki Article", f"{language}"])
+        plt.tight_layout() 
+        
+        
+        plt.savefig(path)
+        plt.close() 
+
+    def auto_count_words(self, phrase, n, t):
+        if not isinstance(n, int) or n < 0:
+            raise InvalidArgumentError("Provide correct depth value.")
+        
+        if not isinstance(t, int) or t < 0:
+            raise InvalidArgumentError("Provide correct time value.")
+
+        self.auto_count_words(phrase, n, t)
+    
+    def auto_count_words_execute(self, current_phrase, n, t):
         print(current_phrase)
         self.scrapper.scrape(phrase=current_phrase)
         self.count_words(phrase=current_phrase)
@@ -65,7 +144,6 @@ class WikiController():
             for _, phrase in all_links_and_phrases:
                 if phrase not in self.visited_phrases:
                     self.auto_count_words(phrase, n - 1, t)            
-                    
 
 
 if __name__ == "__main__":
@@ -73,6 +151,7 @@ if __name__ == "__main__":
         controller = WikiController("https://bulbapedia.bulbagarden.net/wiki")
         #controller.table("Type", 1, True)
         #controller.count_words("charizard")
-        controller.auto_count_words("Chain breeding", 2, 5)
+        #controller.auto_count_words("Chain breeding", 2, 5)
+        controller.analyze_relative_word_frequency("article", 5, "maslo")
     except Exception as e:
         print(f"Błąd: {e}")
