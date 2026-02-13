@@ -19,7 +19,7 @@ def prepare_parsers():
     parser.add_argument('--count', type=int)
     parser.add_argument('--chart', type=str)
     parser.add_argument('--depth', type=int)
-    parser.add_argument('--time', type=int)
+    parser.add_argument('--wait', type=int)
 
     return parser
 
@@ -38,4 +38,4 @@ if __name__ == "__main__":
     elif args.analyze_relative_word_frequency:
         controller.analyze_relative_word_frequency(args.mode, args.count, args.chart)
     else:
-        controller.auto_count_words(args.auto_count_words, args.depth, args.time)
+        controller.auto_count_words(args.auto_count_words, args.depth, args.wait)

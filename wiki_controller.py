@@ -39,7 +39,7 @@ class WikiController():
         self.scrapper.scrape(phrase=phrase)
         phrase_content = self.scrapper.get_words()
         phrase_content = phrase_content.lower()
-        word_list = re.findall(r"\w+", phrase_content)
+        word_list = re.findall(r"\b[a-z]+(?:'[a-z]+)?\b", phrase_content)
          
         current_counts = Counter(word_list)
         counts_path = "./word-counts.json"
@@ -129,7 +129,7 @@ class WikiController():
         if not isinstance(t, int) or t < 0:
             raise InvalidArgumentError("Provide correct time value.")
 
-        self.auto_count_words(phrase, n, t)
+        self.auto_count_words_execute(phrase, n, t)
     
     def auto_count_words_execute(self, current_phrase, n, t):
         print(current_phrase)
@@ -143,7 +143,7 @@ class WikiController():
 
             for _, phrase in all_links_and_phrases:
                 if phrase not in self.visited_phrases:
-                    self.auto_count_words(phrase, n - 1, t)            
+                    self.auto_count_words_execute(phrase, n - 1, t)            
 
 
 if __name__ == "__main__":

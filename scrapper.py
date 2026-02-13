@@ -112,10 +112,10 @@ class WikiScrapper:
 if __name__ == "__main__":
     try:
         scraper = WikiScrapper("https://bulbapedia.bulbagarden.net/wiki")
-        scraper.scrape("Type")
-        print(scraper.get_summary())
-        print(scraper.get_table(2, True))
-        print(scraper.get_words())
-        print(scraper.get_all_links())
+        scraper.scrape("History of Pokémon")
+        #print(len(scraper.get_summary()))
+        #print(scraper.get_table(1))
+        print(len(scraper.get_words()))
+        #print(scraper.get_all_links())
     except Exception as e:
         print(f"Error: {e}")
