@@ -1,9 +1,9 @@
 import sys
 from pathlib import Path
 
-from wiki_scrapper import WikiScrapper
-
 sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+from wiki_scrapper import WikiScrapper
 
 def test_summary():
     scrapper = WikiScrapper("")

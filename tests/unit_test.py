@@ -4,11 +4,11 @@ from pathlib import Path
 
 import pandas as pd
 
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 from wiki_scrapper import WikiScrapper
 from wiki_controller import WikiController
 from wiki_errors import InvalidArgumentError
-
-sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 @pytest.fixture
 def scrapper():

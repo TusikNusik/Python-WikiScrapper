@@ -5,3 +5,4 @@ matplotlib
 wordfreq
 pytest
 lxml
+ipykernel
