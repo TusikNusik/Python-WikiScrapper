@@ -1,10 +1,9 @@
-import pytest
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parent.parent))
+from wiki_scrapper import WikiScrapper
 
-from scrapper import WikiScrapper
+sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 def test_summary():
     scrapper = WikiScrapper("")

@@ -1,15 +1,18 @@
-from scrapper import WikiScrapper
 import re
-from collections import Counter
-import os
-import pandas as pd
-import json
-from wiki_errors import InvalidArgumentError
 import time
-from wordfreq import word_frequency, top_n_list
-import matplotlib.pyplot as plt
+import os
+import json
+from collections import Counter
 
-class WikiController():
+import matplotlib.pyplot as plt
+import pandas as pd
+from wordfreq import word_frequency, top_n_list
+
+from wiki_errors import InvalidArgumentError
+from wiki_scrapper import WikiScrapper
+
+
+class WikiController:
     def __init__(self, wiki_url):
         self.wiki_url = wiki_url
         self.scrapper = WikiScrapper(wiki_url)
@@ -54,9 +57,8 @@ class WikiController():
         with open(counts_path, 'w') as f:
             json.dump(dict(all_counts), f, ensure_ascii=False, indent=2)
 
-    
     def analyze_relative_word_frequency(self, mode, count, chart=None):
-        language = "eng"
+        language = "en"
 
         counts_path = "./word-counts.json"
         if os.path.exists(counts_path):
@@ -133,7 +135,6 @@ class WikiController():
     
     def auto_count_words_execute(self, current_phrase, n, t):
         print(current_phrase)
-        self.scrapper.scrape(phrase=current_phrase)
         self.count_words(phrase=current_phrase)
         self.visited_phrases.add(current_phrase)
         time.sleep(t)
@@ -145,13 +146,12 @@ class WikiController():
                 if phrase not in self.visited_phrases:
                     self.auto_count_words_execute(phrase, n - 1, t)            
 
-
 if __name__ == "__main__":
     try:
         controller = WikiController("https://bulbapedia.bulbagarden.net/wiki")
-        #controller.table("Type", 1, True)
-        #controller.count_words("charizard")
-        #controller.auto_count_words("Chain breeding", 2, 5)
-        controller.analyze_relative_word_frequency("article", 5, "maslo")
+        controller.table("Type", 1, True)
+        controller.count_words("charizard")
+        controller.auto_count_words("Chain breeding", 1, 1)
+        controller.analyze_relative_word_frequency("article", 5, "analisys")
     except Exception as e:
-        print(f"Błąd: {e}")
+        print(f"Error: {e}")

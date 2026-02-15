@@ -1,9 +1,11 @@
-from bs4 import BeautifulSoup
 import os
-import requests
-from wiki_errors import MissingArgumentError, InvalidArgumentError, PermissionDeniedError
-import pandas as pd
 import io
+
+from bs4 import BeautifulSoup
+import pandas as pd
+import requests
+
+from wiki_errors import MissingArgumentError, InvalidArgumentError, PermissionDeniedError
 
 class WikiScrapper:
     def __init__(self, wiki_url):
@@ -34,7 +36,7 @@ class WikiScrapper:
             return response.text
         else:
             if response.status_code == 404:
-                raise InvalidArgumentError("Provided side doesn't exist.")
+                raise InvalidArgumentError("Provided site doesn't exist.")
             elif response.status_code == 403:
                 raise PermissionDeniedError("Permission to site denied.")
             else:
@@ -113,9 +115,9 @@ if __name__ == "__main__":
     try:
         scraper = WikiScrapper("https://bulbapedia.bulbagarden.net/wiki")
         scraper.scrape("History of Pokémon")
-        #print(len(scraper.get_summary()))
-        #print(scraper.get_table(1))
+        print(len(scraper.get_summary()))
+        print(scraper.get_table(1))
         print(len(scraper.get_words()))
-        #print(scraper.get_all_links())
+        print(scraper.get_all_links())
     except Exception as e:
         print(f"Error: {e}")

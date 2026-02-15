@@ -1,11 +1,14 @@
 import pytest
-import pandas as pd
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parent.parent))
+import pandas as pd
 
-from scrapper import WikiScrapper
+from wiki_scrapper import WikiScrapper
+from wiki_controller import WikiController
+from wiki_errors import InvalidArgumentError
+
+sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 @pytest.fixture
 def scrapper():
@@ -14,6 +17,10 @@ def scrapper():
 @pytest.fixture
 def local_file():
     return "tests/Team_Rocket.html"
+
+@pytest.fixture
+def controller():
+    return WikiController("")
 
 def test_table(scrapper, local_file):
     scrapper.scrape(local_file=local_file)
@@ -33,4 +40,10 @@ def test_open_local_file_that_doesnt_exists(scrapper):
     with pytest.raises(FileNotFoundError):
         scrapper.scrape(local_file="maslo.html")
 
-   
+def test_invalid_mode(controller):
+    with pytest.raises(InvalidArgumentError):
+        controller.analyze_relative_word_frequency("invalid mode", 10)
+
+def test_invalid_count(controller):
+    with pytest.raises(InvalidArgumentError):
+        controller.analyze_relative_word_frequency("article", -10)
